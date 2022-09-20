@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Caixa Eletrônico</title>
+	<script>
+		
+		var saldo = 100.5; //Variavel Global
+		var nome = "";
+		var escolha = 0;
+		var movimentacao = ["MC*Donalds       -R$ 50.00","Cinemark            -R$ 64.50", "Depósito            +R$ 200.00"];
+		var contaTransf = 0;
+
+		function saudacaoInicio(){
+			var agora = new Date();
+			var saudacao = "";
+			var hora = agora.getHours();
+			if(hora >= 0 && hora <= 6){
+				saudacao = "Boa Madrugada ";
+				return saudacao;
+			}else if(hora >= 6 && hora <= 12){
+				saudacao = "Bom Dia ";
+				return saudacao;
+			}else if(hora >= 12 && hora <=18){
+				saudacao = "Boa Tarde ";
+				return saudacao;
+			}else{
+				saudacao = "Boa Noite ";
+				return saudacao;
+			}
+		}
+
+		function verificarNome(){
+			nome = prompt("Qual o seu nome?");
+
+			if(nome == null || nome == ""){
+				var confirmaNome = confirm("Você está tentando digitar seu nome?");
+
+				if(confirmaNome){
+					verificarNome();
+				}else{
+					var confirmaSaida = confirm("Você deseja sair?");
+
+					if(confirmaSaida){
+						alert("Foi um prazer ter você aqui.");
+						window.close();
+					}else{
+						verificarNome();
+					}
+				}
+				
+			}else if(nome.length <= 2){
+				alert("Por favor, digite o seu nome");
+				verificarNome();
+			}else{
+				alert("Olá " + nome + " é um prazer ter você por aqui!");
+				inicio();
+			}
+		}
+
+		function inicio() {
+			//ESCOPO
+			//Variavel Local
+			var saudacao = saudacaoInicio();
+			escolha = parseInt(prompt(saudacao + nome + "," + "\nSelecione uma opção:\n 1.) Saldo\n 2.) Extrato\n 3.) Saque\n 4.) Depósito\n 5.) Transferência\n 6.) Sair"));
+			
+			switch (escolha) {
+				case 1:
+					verificaSenha();
+					break;
+				case 2:
+					verificaSenha();
+					break;
+				case 3:
+					verificaSenha();
+					break;
+				case 4:
+					fazerDeposito();
+					break;
+				case 5:
+					verificaSenha();
+					break;
+				case 6:
+					sair();
+					break;
+				default:
+					erro();
+					break;
+			}
+		}
+
+		function verSaldo() {
+			alert("Seu saldo atual é: " + saldo.toFixed(2));
+			inicio();
+		}
+
+		function fazerSaque() {
+			var saque = parseFloat(prompt("Qual o valor para saque?"));
+
+			if(isNaN(saque)) {
+				isNotaNumber();
+			}else{
+				var status = verificaOperacao(saque);
+
+				if(status){
+					saldo -= saque;
+					//saldo = saldo - saque;
+					var movimentacaoSaque = "Saque                 -R$ " + saque;
+					movimentacao.unshift(movimentacaoSaque);
+					verSaldo();
+				}
+				else{
+					alert("Operação não autorizada");
+					fazerSaque();
+				}
+			}
+			
+		}
+
+		function verExtrato(){
+			var numMovimentacoes = movimentacao.length;
+			if(numMovimentacoes == 3){
+				alert("Extrato das últimas 3 movimentações:\n ---------------- EXTRATO ---------------- \n " + movimentacao[0] + "\n " + movimentacao[1] + "\n " + movimentacao[2]);
+				inicio();
+			}else if(numMovimentacoes == 4){
+				alert("Extrato das últimas 4 movimentações:\n ---------------- EXTRATO ---------------- \n " + movimentacao[0] + "\n " + movimentacao[1] + "\n " + movimentacao[2] + "\n " +  movimentacao[3]);
+				inicio();
+			}else if(numMovimentacoes == 5){
+				alert("Extrato das últimas 5 movimentações:\n ---------------- EXTRATO ---------------- \n " + movimentacao[0] + "\n " + movimentacao[1] + "\n " + movimentacao[2] + "\n " +  movimentacao[3] + "\n " + movimentacao[4]);
+				inicio();
+			}else if(numMovimentacoes > 5){
+				alert("Extrato das últimas 6 movimentações:\n ---------------- EXTRATO ---------------- \n " + movimentacao[0] + "\n " + movimentacao[1] + "\n " + movimentacao[2] + "\n " +  movimentacao[3] + "\n " + movimentacao[4] + "\n " + movimentacao[5]);
+				inicio();
+			}
+		}
+
+		function fazerDeposito() {
+			
+			var deposito = parseFloat(prompt("Qual o valor para depósito?"));
+			
+			// Not a Number --> Isso é um não-número?
+			if (isNaN(deposito)) {
+				isNotaNumber();
+			} else {
+				var status = verificaOperacao(deposito);
+
+				if(status){
+					saldo += deposito;
+					var movimentacaoDeposito = "Depósito            +R$ " + deposito;
+					movimentacao.unshift(movimentacaoDeposito);
+					verSaldo();
+				}else{
+					alert("Operação não autorizada");
+					fazerDeposito();
+				}
+				
+			}
+		}
+
+		function fazerTransferencia(){
+			if(contaTransf != 0){
+				var transferencia = parseFloat(prompt("Qual o valor para transferência?"));
+
+				if(isNaN(transferencia)){
+					isNotaNumber();
+				}else{
+					var status = verificaOperacao(transferencia);	
+					if(status){ 
+						saldo -= transferencia;
+						contaTransf = 0;
+						var movimentacaoTransf = "Transferência      -R$ " + transferencia;
+						movimentacao.unshift(movimentacaoTransf);
+						verSaldo();
+					}else{
+						alert("Operação não autorizada");
+						fazerTransferencia();
+					}
+				}
+			}else{
+				var conta = parseInt(prompt("Digite o número da conta (5 dígitos)"));
+				var verificaConta = Math.log(conta) * Math.LOG10E + 1 | 0;
+
+				if(isNaN(conta) || verificaConta != 5){
+					contaTransf = 0;
+					isNotaNumber();
+				}else{
+					contaTransf = conta;
+					fazerTransferencia();
+				}
+			}
+		}
+
+		function sair() {
+			var saudacao = saudacaoInicio()
+			var confirma = confirm('Você deseja sair?');
+			if (confirma) {
+				alert(saudacao + nome + ", foi um prazer ter você por aqui!")
+				window.close();
+			} else {
+				inicio();
+			}
+		}
+
+		function verificaSenha(){
+			var senha = 3589;
+			var senhaDigitada = parseInt(prompt("Digite a senha de 4 dígitos:"));
+
+			if(isNaN(senhaDigitada)){
+				var confirmaSenha = confirm("Você está tentando digitar a senha?");
+
+				if(confirmaSenha){
+					alert("A senha é númerica e tem 4 dígitos.")
+					verificaSenha();
+				}else{
+					var confirmaInicio = confirm("Vocês está tentando voltar para o menu inicial?");
+
+					if(confirmaInicio){
+						inicio();
+					}else{
+						sair();
+					}
+				}
+				
+			}else if(senhaDigitada != senha){
+				alert("Senha Incorreta!");
+				verificaSenha()
+			}else{
+
+				if(escolha == 1){
+
+					verSaldo();
+
+				}else if(escolha == 2){
+
+					verExtrato();
+
+				}else if(escolha == 3){
+
+					fazerSaque();
+
+				}else if(escolha == 5){
+
+					fazerTransferencia();
+
+				}
+			}
+			
+		}
+
+		function erro() {
+			alert("Por favor, informe um número entre 1 e 6.");
+			inicio();
+		}
+
+		function verificaOperacao(valor){
+			var statusOperacao = "";
+
+			if(escolha == 3){
+				var saque = valor;
+
+				if(saque >= saldo || saque <= 0){
+					statusOperacao = false;
+					return statusOperacao;
+				}else{
+					statusOperacao = true;
+					return statusOperacao;
+				}
+				
+			}else if(escolha == 4){
+				var deposito = valor;
+
+				if(deposito <= 0){
+					statusOperacao = false;
+					return statusOperacao;
+				}else{
+					statusOperacao = true;
+					return statusOperacao;
+				}
+			}else if(escolha == 5){
+				var transferencia = valor;
+
+				if(transferencia > saldo || transferencia <= 0){
+					statusOperacao = false;
+					return statusOperacao;
+				}else{
+					statusOperacao = true;
+					return statusOperacao;
+				}
+			}
+		}
+
+		function isNotaNumber(){
+			if(escolha == 5 && contaTransf == 0 || isNaN(contaTransf)){
+				var confirmarConta = confirm("Você está tentando digitar o número da conta?");
+
+				if(confirmarConta){
+					alert("Digite só números. \nE lembre-se, o número da conta só tem 5 dígitos");
+					fazerTransferencia();
+				}else{
+					var confirmarContaVoltar = confirm("Você está tentando voltar para o menu inicial?");
+					
+					if(confirmarContaVoltar){
+						contaTransf = 0;
+						inicio();
+					}else{
+						contaTransf = 0;
+						sair();
+					}
+				}
+			}else{
+				var confirmarValor = confirm("Você está tentando digitar o valor?");
+
+				if(confirmarValor){
+					alert('Digite o valor com números e use o "." no lugar da vírgula \nEx: 120.50');
+
+					if(escolha == 3){
+						fazerSaque();
+					}else if(escolha == 4){
+						fazerDeposito();
+					}else if(escolha == 5){
+						fazerTransferencia();
+					}
+
+				}else{
+					var confirmarInicio = confirm("Você está tentando voltar para o menu inicial?");
+
+					if(confirmarInicio){
+						contaTransf = 0;
+						inicio();
+					}else{
+						contaTransf = 0;
+						sair();
+					}
+				}
+			}
+		}
+
+		verificarNome();
+	</script>
+</head>
+
+<body>
+
+</body>
+
+</html>
