@@ -7,7 +7,7 @@
 		<title>Caixa Eletrônico</title>
 	<script>
 		
-		var saldo = 100.5; //Variavel Global
+		var saldo = 100.5;
 		var nome = "";
 		var escolha = 0;
 		var movimentacao = ["MC*Donalds       -R$ 50.00","Cinemark            -R$ 64.50", "Depósito            +R$ 200.00"];
@@ -61,8 +61,6 @@
 		}
 
 		function inicio() {
-			//ESCOPO
-			//Variavel Local
 			var saudacao = saudacaoInicio();
 			escolha = parseInt(prompt(saudacao + nome + "," + "\nSelecione uma opção:\n 1.) Saldo\n 2.) Extrato\n 3.) Saque\n 4.) Depósito\n 5.) Transferência\n 6.) Sair"));
 			
@@ -106,9 +104,9 @@
 
 				if(status){
 					saldo -= saque;
-					//saldo = saldo - saque;
 					var movimentacaoSaque = "Saque                 -R$ " + saque;
 					movimentacao.unshift(movimentacaoSaque);
+          alert("Operação Realizada com Sucesso!!");
 					verSaldo();
 				}
 				else{
@@ -140,7 +138,6 @@
 			
 			var deposito = parseFloat(prompt("Qual o valor para depósito?"));
 			
-			// Not a Number --> Isso é um não-número?
 			if (isNaN(deposito)) {
 				isNotaNumber();
 			} else {
@@ -150,6 +147,7 @@
 					saldo += deposito;
 					var movimentacaoDeposito = "Depósito            +R$ " + deposito;
 					movimentacao.unshift(movimentacaoDeposito);
+          alert("Operação Realizada com Sucesso!!");
 					verSaldo();
 				}else{
 					alert("Operação não autorizada");
@@ -172,6 +170,7 @@
 						contaTransf = 0;
 						var movimentacaoTransf = "Transferência      -R$ " + transferencia;
 						movimentacao.unshift(movimentacaoTransf);
+            alert("Operação Realizada com Sucesso!!");
 						verSaldo();
 					}else{
 						alert("Operação não autorizada");
